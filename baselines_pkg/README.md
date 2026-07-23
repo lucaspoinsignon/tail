@@ -1,12 +1,4 @@
-# Environment
-Requires Python >= 3.9 with numpy, scipy, matplotlib, and torch.
-The tested setup is the conda environment in `environment.yml`:
-
-````bash
-conda env create -f environment.yml
-conda activate tails
-
-## Baselines-only package
+# Baselines-only package
 
 Standalone training and evaluation of three published generative baselines for
 multivariate return series -- **no tailfm model code included**:
@@ -22,7 +14,20 @@ marginal VaR-CVaR diagnostics, GPD-refined portfolio risk with bootstrap CIs,
 Kupiec backtest). `dataio.py` loads CSV (with or without header / Date column)
 or .npy return matrices; use `--prices` for price series (log-returns taken).
 
-Requirements: numpy, scipy, matplotlib, torch.
+## Environment
+
+Requires Python >= 3.9 with numpy, scipy, matplotlib, and torch.
+The tested setup is the conda environment in `environment.yml`:
+
+```bash
+conda env create -f environment.yml
+conda activate tails
+```
+
+On machines with a system conda install (e.g. under `/opt/conda`), bootstrap
+it first in each new shell with `source /opt/conda/etc/profile.d/conda.sh`;
+to place the environment in your home directory on shared machines, use
+`conda env create -f environment.yml -p $HOME/envs/tails`.
 
 ## Run
 
