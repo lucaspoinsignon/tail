@@ -1,3 +1,12 @@
+## Environment
+
+Requires Python >= 3.9 with numpy, scipy, matplotlib, and torch.
+The tested setup is the conda environment in `environment.yml`:
+
+````bash
+conda env create -f environment.yml
+conda activate tails
+
 # Baselines-only package
 
 Standalone training and evaluation of three published generative baselines for
