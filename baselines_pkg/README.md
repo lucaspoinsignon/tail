@@ -53,3 +53,8 @@ and re-evaluate saved `gen_<model>.npy`), `--models timevae,timegan,tailgan`
 (subset), `--seed`, `--device`, `--weights`, `--horizon`. Reference training
 budgets and known failure modes of each baseline are documented in the module
 docstrings under `baselines/`.
+
+
+# run
+python diagnose_timevae.py --data timeseries.csv --prices --n 24 \
+    --recon-wt 100 --latent 32 --epochs 300
