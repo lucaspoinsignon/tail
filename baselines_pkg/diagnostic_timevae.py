@@ -1,7 +1,7 @@
 """Why is TimeVAE collapsing? Separates 'prior hole' from 'incompressible data'.
 
 Usage:
-    python diagnose_timevae.py --data timeseries.csv --prices --n 24 \
+    python diagnostic_timevae.py --data timeseries.csv --prices --n 24 \
         --recon-wt 100 --latent 32 --epochs 300
 """
 import argparse
@@ -11,8 +11,8 @@ import torch
 
 from baselines.common import MinMax01Scaler, default_device, set_seed
 from baselines.timevae import TimeVAE, train_timevae
-from fit_returns import load_returns
-from tailfm import make_windows
+from dataio import load_returns
+from evaluation import make_windows
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--data", required=True)
