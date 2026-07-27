@@ -47,22 +47,36 @@ with torch.no_grad():
     x_hat = model.decode(mu)
     kl_per_dim = (-0.5 * (1 + log_var - mu ** 2 - log_var.exp())).mean(0)
 gen01 = model.get_prior_samples(2000, device=dev)
+spread = float(gen01.std(axis=0).max())
 
 s_real = float(x.std())
 s_post = float(x_post.std())
 s_prior = float(gen01.std())
-r2 = 1.0 - float(((x - x_hat) ** 2).mean()) / float(x.var())
+xn, xh = x.cpu().numpy(), x_hat.cpu().numpy()
+r2_feat = np.array([1.0 - ((xn[:, :, j] - xh[:, :, j]) ** 2).mean()
+                    / xn[:, :, j].var() for j in range(xn.shape[2])])
+r2 = float(r2_feat.mean())
+r2_pooled = 1.0 - float(((x - x_hat) ** 2).mean()) / float(x.var())
 active = int((kl_per_dim > 0.01).sum())
 
 print("\n" + "=" * 58)
 print(f"  std of real windows            {s_real:.5f}")
 print(f"  std decoded from posterior     {s_post:.5f}   ({s_post/s_real:6.1%} of real)")
 print(f"  std decoded from prior N(0,I)  {s_prior:.5f}   ({s_prior/s_real:6.1%} of real)")
-print(f"  reconstruction R^2             {r2:6.3f}")
+print(f"  reconstruction R^2 per feature {r2:6.3f}   (pooled {r2_pooled:.3f}, misleading)")
+print(f"  spread across prior samples    {spread:.2e}")
 print(f"  active latent dims (KL>0.01)   {active} / {a.latent}")
 print("=" * 58)
 
-if s_post / s_real > 0.7 and s_prior / s_real < 0.4:
+if active == 0:
+    print("\nDIAGNOSIS: complete posterior collapse.")
+    print("  No latent dimension carries information, so the decoder ignores z and")
+    print("  emits one constant window. Every generated sample is identical -> zero")
+    print("  dispersion, flat VaR, lambda_L = 0. Raising --recon-wt or --latent will")
+    print("  not help: using the latent costs KL but barely reduces reconstruction")
+    print("  error on near-white-noise windows, so the optimiser zeroes it out.")
+    print("  Report this as the result; it is a property of the model on returns.")
+elif s_post / s_real > 0.7 and s_prior / s_real < 0.4:
     print("\nDIAGNOSIS: prior hole.")
     print("  The decoder is fine but the aggregate posterior has drifted off N(0,I),")
     print("  so prior draws land where it was never trained. Lower --recon-wt")
@@ -76,5 +90,7 @@ elif s_post / s_real < 0.7:
 else:
     print("\nDIAGNOSIS: dispersion looks healthy - collapse is elsewhere in the run.")
 
-print(f"\n  R^2 near 0 confirms return windows are near-incompressible;")
-print(f"  on the TimeVAE paper's smooth datasets this number is close to 1.")
+print("\n  Per-feature R^2 near 0 confirms return windows are near-incompressible;")
+print("  on the TimeVAE paper's smooth datasets this number is close to 1.")
+print("  The pooled R^2 is inflated by cross-feature level offsets from min-max")
+print("  scaling - a constant decoder scores well on it. Quote the per-feature one.")
