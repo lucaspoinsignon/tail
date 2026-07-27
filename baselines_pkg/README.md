@@ -34,7 +34,7 @@ to place the environment in your home directory on shared machines, use
 ```bash
 # 1) Train all three baselines at reference-grade budgets, generate 50k
 #    windows each, print diagnostics + comparison table, save both figures
-python run_baselines.py --data returns.csv --n 24 --gen 50000 \
+python run_baselines.py --data timeseries.csv --prices --n 24 --gen 50000 \
     --timegan-iters 50000 \
     --tailgan-alphas 0.05,0.01,0.005 --tailgan-epochs 10000 \
     --timevae-recon-wt 100 --timevae-latent 32
